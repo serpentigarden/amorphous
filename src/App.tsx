@@ -86,22 +86,23 @@ function WordSprawl() {
 
 function App() {
   const [showSprawl, setShowSprawl] = useState(false);
-  const [sawOnce, setSawOnce] = useState(false);
+  const [numToggled, setNumToggled] = useState(0);
 
   return (
     <div className="flex flex-row items-center">
       {showSprawl ? (
         <>
-          Woah <WordSprawl />
+          {numToggled > 1? "Hello again" : "Woah"}
+          <WordSprawl />
         </>
       ) : (
-        <div> {sawOnce ? "What was that?" : "Nothing to see here"}</div>
+        <div> {numToggled > 1 ? "What was that?" : "There's nothing here"}</div>
       )}
       <input
         type="checkbox"
         onChange={(_) => {
           setShowSprawl(!showSprawl);
-          setSawOnce(true);
+          setNumToggled(numToggled + 1);
         }}
         className="m-8"
       />
