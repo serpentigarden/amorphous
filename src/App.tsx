@@ -1,56 +1,87 @@
 import "./App.css";
 
 import { gsap } from "gsap";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(useGSAP);
 
-function App() {
-  const container = useRef<HTMLDivElement | null>(null);
+function getWord() {
+  const value = Math.random();
 
-  const items = Array.from(
-    { length: Math.floor(Math.random() * 10) + 5 },
-    () => (Math.random() > 0.5 ? "lol" : "omg"),
-  );
+  if (value == 0.0) {
+    return "super rare";
+  }
+  if (value <= 0.2) {
+    return "pop";
+  }
+  if (value <= 0.5) {
+    return "hi";
+  }
+  if (value <= 0.8) {
+    return "omg";
+  }
+  return "derp";
+}
+
+function WordSprawl() {
+  const [magnitude, setMagnitude] = useState(400);
+
+  const container = useRef<HTMLDivElement | null>(null);
+  const magnitudeRef = useRef(magnitude);
+  const words = useRef<Array<string>>(Array.from({ length: 30 }, getWord));
+
+  useEffect(() => {
+    magnitudeRef.current = magnitude;
+  }, [magnitude]);
 
   useGSAP(
     () => {
-      const tl = gsap.timeline({ repeat: -1, yoyo: true });
-      if (!container.current) {
-        return;
-      }
-      container.current.querySelectorAll(".box").forEach(box => {
-        tl.to(
-          box,
-          {
-            x: () => Math.random() * window.innerWidth - 100,
-            y: () => Math.random() * window.innerHeight - 100,
-            duration: 2 + Math.random() * 2,
-            ease: "power2.inOut",
-          },
-          0,
-        );
-      });
+      container.current
+        ?.querySelectorAll<HTMLDivElement>(".box")
+        ?.forEach((box) => {
+          const animate = () => {
+            //console.log(magnitude)
+            const magnitude = magnitudeRef.current;
+            gsap.to(box, {
+              x: (Math.random() * 2 - 1) * magnitude,
+              y: (Math.random() * 2 - 1) * magnitude,
+              duration: 1 + Math.random() * 2,
+              ease: "power2.inOut",
+              onComplete: animate, // keep looping
+            });
+          };
+
+          animate();
+        });
     },
     { scope: container },
   );
 
   return (
-    <div
-      ref={container}
-      className="w-full h-screen bg-gray-100 relative overflow-hidden"
-    >
-      {items.map((text, idx) => (
-        <div
-          key={idx}
-          className="box absolute w-20 h-20 flex items-center justify-center rounded-xl bg-blue-400 text-white font-bold shadow-lg"
-        >
-          {text}
-        </div>
-      ))}
+    <div ref={container}>
+      <input
+        type="range"
+        min={0}
+        max={1000}
+        value={magnitude}
+        onChange={(e) => {
+          setMagnitude(Number(e.target.value));
+        }}
+        className="w-64 accent-blue-500 z-50"
+      />
+      <div className="grid grid-cols-4 gap-4">
+        {words.current.map((word, idx) => (
+          <div
+            key={idx}
+            className="box w-20 h-20 flex items-center justify-center rounded-xl font-bold shadow-lg"
+          >
+            {word}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-export default App;
+export default WordSprawl;
