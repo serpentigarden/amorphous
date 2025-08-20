@@ -6,7 +6,7 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(useGSAP);
 
-function getWord() {
+function getWord(): string {
   const value = Math.random();
 
   if (value == 0.0) {
@@ -25,11 +25,11 @@ function getWord() {
 }
 
 function WordSprawl() {
-  const [magnitude, setMagnitude] = useState(400);
+  const [magnitude, setMagnitude] = useState(128);
 
   const container = useRef<HTMLDivElement | null>(null);
   const magnitudeRef = useRef(magnitude);
-  const words = useRef<Array<string>>(Array.from({ length: 30 }, getWord));
+  const words = useRef(Array.from({ length: 20 }, getWord));
 
   useEffect(() => {
     magnitudeRef.current = magnitude;
@@ -41,14 +41,14 @@ function WordSprawl() {
         ?.querySelectorAll<HTMLDivElement>(".box")
         ?.forEach((box) => {
           const animate = () => {
-            //console.log(magnitude)
             const magnitude = magnitudeRef.current;
             gsap.to(box, {
-              x: (Math.random() * 2 - 1) * magnitude,
-              y: (Math.random() * 2 - 1) * magnitude,
-              duration: 1 + Math.random() * 2,
+              x: (Math.random() * 2 - 1) * magnitude * 2,
+              y: (Math.random() * 2 - 1) * magnitude * 2,
+              color: `rgb(${magnitude / 2}, ${magnitude}, ${magnitude})`,
+              duration: 3 + Math.random() * 2,
               ease: "power2.inOut",
-              onComplete: animate, // keep looping
+              onComplete: animate,
             });
           };
 
@@ -63,7 +63,7 @@ function WordSprawl() {
       <input
         type="range"
         min={0}
-        max={1000}
+        max={255}
         value={magnitude}
         onChange={(e) => {
           setMagnitude(Number(e.target.value));
@@ -84,4 +84,29 @@ function WordSprawl() {
   );
 }
 
-export default WordSprawl;
+function App() {
+  const [showSprawl, setShowSprawl] = useState(false);
+  const [sawOnce, setSawOnce] = useState(false);
+
+  return (
+    <div className="flex flex-row items-center">
+      {showSprawl ? (
+        <>
+          Woah <WordSprawl />
+        </>
+      ) : (
+        <div> {sawOnce ? "What was that?" : "Nothing to see here"}</div>
+      )}
+      <input
+        type="checkbox"
+        onChange={(_) => {
+          setShowSprawl(!showSprawl);
+          setSawOnce(true);
+        }}
+        className="m-8"
+      />
+    </div>
+  );
+}
+
+export default App;
