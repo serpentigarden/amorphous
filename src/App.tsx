@@ -41,19 +41,23 @@ function useRevealState(): RevealStates {
   const [showOcean, setShowOcean] = useState(false);
 
   function negateEnsuringSingleView(label: string) {
+    const setters = new Set([setShowSprawl, setShowOcean]);
     switch (label) {
       case "sprawl":
         if (!showSprawl) {
-          setShowOcean(false);
+          setters.delete(setShowSprawl);
+          setters.forEach((setter) => setter(false));
         }
         setShowSprawl(!showSprawl);
         break;
       case "ocean":
         if (!showOcean) {
-          setShowSprawl(false);
+          setters.delete(setShowOcean);
+          setters.forEach((setter) => setter(false));
         }
         setShowOcean(!showOcean);
       default:
+      // do nothing
     }
   }
 

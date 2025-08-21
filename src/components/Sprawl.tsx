@@ -1,5 +1,5 @@
 import { gsap } from "gsap";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, type ChangeEvent } from "react";
 import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(useGSAP);
@@ -22,16 +22,43 @@ function getWord(): string {
   return "derp";
 }
 
+interface SliderInputProps {
+  label: string;
+  min: number;
+  max: number;
+  value: number;
+  setter: (n: number) => void;
+}
+
+function SliderInput({ label, min, max, value, setter }: SliderInputProps) {
+  return (
+    <div className="flex flex-row justify-center">
+      <label className="pr-2">{label}</label>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => setter(Number(e.target.value))}
+        className="w-64 accent-blue-500 z-50"
+      />
+    </div>
+  );
+}
+
 export function Sprawl() {
   const [magnitude, setMagnitude] = useState(0);
+  const magnitudeRef = useRef(magnitude);
+  const [speed, setSpeed] = useState(5);
+  const speedRef = useRef(speed);
 
   const container = useRef<HTMLDivElement | null>(null);
-  const magnitudeRef = useRef(magnitude);
   const words = useRef(Array.from({ length: 20 }, getWord));
 
   useEffect(() => {
     magnitudeRef.current = magnitude;
-  }, [magnitude]);
+    speedRef.current = speed;
+  }, [magnitude, speed]);
 
   useGSAP(
     () => {
@@ -39,12 +66,13 @@ export function Sprawl() {
         ?.querySelectorAll<HTMLDivElement>(".box")
         ?.forEach((box) => {
           const animate = () => {
+            const speed = speedRef.current;
             const magnitude = magnitudeRef.current;
             gsap.to(box, {
               x: (Math.random() * 2 - 1) * magnitude * 2,
               y: (Math.random() * 2 - 1) * magnitude * 2,
               color: `rgb(${magnitude}, 0, 0)`,
-              duration: 1 + Math.random() * 2,
+              duration: 0.5 * speed + Math.random(),
               ease: "power2.inOut",
               onComplete: animate,
             });
@@ -58,15 +86,19 @@ export function Sprawl() {
 
   return (
     <div ref={container}>
-      <input
-        type="range"
+      <SliderInput
+        label="Magnitude"
         min={0}
         max={255}
         value={magnitude}
-        onChange={(e) => {
-          setMagnitude(Number(e.target.value));
-        }}
-        className="w-64 accent-blue-500 z-50"
+        setter={setMagnitude}
+      />
+      <SliderInput
+        label="Speed"
+        min={1}
+        max={5}
+        value={speed}
+        setter={setSpeed}
       />
       <div className="grid grid-cols-4 gap-4">
         {words.current.map((word, idx) => (

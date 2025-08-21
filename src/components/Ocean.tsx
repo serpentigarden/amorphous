@@ -1,6 +1,5 @@
 import * as THREE from "three";
-import { useRef, useState } from "react";
-import type { ThreeElements } from "@react-three/fiber";
+import { useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 
 function Ocean() {
@@ -14,11 +13,9 @@ function Ocean() {
     for (let i = 0; i < position.count; i++) {
       const x = position.getX(i);
       const y = position.getY(i);
-
-      // Wave function
       const z =
-        Math.sin(x / 2 + time) * 0.2 + Math.cos(y / 3 + time * 1.5) * 0.2;
-
+        Math.sin(x * 0.3 + time * 1.5) * 0.2 +
+        Math.cos(y * 0.4 + time * 1.2) * 0.2;
       position.setZ(i, z);
     }
 
@@ -28,23 +25,26 @@ function Ocean() {
 
   return (
     <mesh ref={meshRef} rotation-x={-Math.PI / 2}>
-      <planeGeometry args={[100, 100, 256, 256]} />
+      <planeGeometry args={[90, 90, 128, 128]} />
       <meshStandardMaterial
         color="#004488"
         emissive="#001e3c"
         emissiveIntensity={0.3}
-        metalness={0.2}
-        roughness={0.6}
+        metalness={0.1}
+        roughness={0.5}
       />
     </mesh>
   );
 }
 
+import { Sky, Environment } from "@react-three/drei";
 export function Scene() {
   return (
     <Canvas camera={{ position: [0, 5, 0], fov: 75 }}>
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[10, 20, 10]} intensity={1.2} />
+      <Sky sunPosition={[0, 20, 100]} />
+      <Environment preset="dawn" />
+      <ambientLight intensity={0.9} />
+      <directionalLight position={[0, 50, 10]} intensity={1.5} color="white" />
       <Ocean />
     </Canvas>
   );
