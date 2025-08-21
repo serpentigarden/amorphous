@@ -1,9 +1,8 @@
 import "./App.css";
 
-import { gsap } from "gsap";
-import { useRef, useState, useEffect } from "react";
-import { useGSAP } from "@gsap/react";
+import { useState } from "react";
 import { Sprawl } from "./components/Sprawl";
+import { Scene as OceanScene } from "./components/Ocean";
 
 interface ToggleButtonProps {
   label: string;
@@ -71,21 +70,22 @@ function useRevealState(): RevealStates {
 }
 
 function App() {
-  const { sprawlReveal: sprawl, oceanReveal: ocean } = useRevealState();
+  const { sprawlReveal, oceanReveal } = useRevealState();
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="size-100 flex flex-col items-center">
       <ShowToggleButton
-        show={sprawl.show}
+        show={sprawlReveal.show}
         label={"sprawl"}
-        onChange={(_) => sprawl.negate()}
+        onChange={(_) => sprawlReveal.negate()}
       />
       <ShowToggleButton
-        show={ocean.show}
+        show={oceanReveal.show}
         label={"ocean"}
-        onChange={(_) => ocean.negate()}
+        onChange={(_) => oceanReveal.negate()}
       />
-      {sprawl.show && <Sprawl />}
+      {sprawlReveal.show && <Sprawl />}
+      {oceanReveal.show && <OceanScene />}
     </div>
   );
 }
